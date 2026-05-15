@@ -45,7 +45,7 @@ module Forms
     end
 
     def redirect_if_feature_disabled
-      return if FeatureService.enabled?(:filler_answer_email_enabled)
+      return if FeatureService.enabled?(:filler_answer_email_enabled) && current_context.form.copy_of_answers_enabled?
 
       redirect_to check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
     end
