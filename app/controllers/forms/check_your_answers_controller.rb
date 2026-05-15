@@ -77,7 +77,7 @@ module Forms
     end
 
     def back_link
-      if FeatureService.enabled?("filler_answer_email_enabled")
+      if FeatureService.enabled?("filler_answer_email_enabled") && current_context.form.copy_of_answers_enabled?
         copy_of_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
       else
         previous_step = current_context.previous_step(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)

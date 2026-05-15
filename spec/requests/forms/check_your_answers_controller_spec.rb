@@ -6,6 +6,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
   let(:timestamp_of_request) { Time.utc(2022, 12, 14, 10, 0o0, 0o0) }
 
   let(:form_id) { 2 }
+  let(:send_copy_of_answers) { "enabled" }
   let(:form_data) do
     build(:v2_form_document, :with_support, :with_submission_email,
           form_id: form_id,
@@ -18,6 +19,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
           support_email: "help@example.gov.uk",
           support_url: "https://example.gov.uk/help",
           support_url_text: "Get help",
+          send_copy_of_answers:,
           submission_email:)
   end
 
@@ -193,6 +195,18 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
         end
 
         include_examples "for notification references"
+      end
+
+      context "when send_copy_of_answers is disabled on the form" do
+        let(:send_copy_of_answers) { "disabled" }
+
+        before do
+          get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
+        end
+
+        it "Displays a back link to the last step" do
+          expect(response.body).to include(form_step_path(mode:, form_id:, form_slug: form_data.form_slug, step_slug: 2))
+        end
       end
     end
   end
