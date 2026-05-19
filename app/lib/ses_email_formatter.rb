@@ -1,4 +1,6 @@
 class SesEmailFormatter
+  include EmailFormatHelper
+
   H_RULE = '<hr style="border: 0; height: 1px; background: #B1B4B6; Margin: 30px 0 30px 0;">'.freeze
   H_RULE_PLAIN_TEXT = "\n\n---\n\n".freeze
 
@@ -94,13 +96,5 @@ private
   def sanitize(text)
     text
       .then { normalize_whitespace _1 }
-  end
-
-  def normalize_whitespace(text)
-    text.strip.gsub(/\r\n?/, "\n").split(/\n\n+/).map(&:strip).join("\n\n")
-  end
-
-  def convert_newlines_to_html(text)
-    text.gsub("\n", "<br/>")
   end
 end

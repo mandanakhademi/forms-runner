@@ -1,4 +1,6 @@
 class ApplicationMailer < ActionMailer::Base
+  helper :email_format
+
   layout "mailer"
 
   default from: I18n.t("mailer.submission.from", email_address: Settings.ses_submission_email.from_email_address),
