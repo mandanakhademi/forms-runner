@@ -53,6 +53,14 @@ class Submission < ApplicationRecord
     Mode.new(mode)
   end
 
+  def answer_content_for_email_html
+    ses_email_formatter.build_question_answers_section_html
+  end
+
+  def answer_content_for_email_plain_text
+    ses_email_formatter.build_question_answers_section_plain_text
+  end
+
 private
 
   def answer_store
@@ -65,5 +73,9 @@ private
 
   def form_document_resource
     @form_document_resource ||= Api::V2::FormDocumentResource.new(form_document, true)
+  end
+
+  def ses_email_formatter
+    SesEmailFormatter.new(submission_reference: reference, steps: journey.completed_steps)
   end
 end

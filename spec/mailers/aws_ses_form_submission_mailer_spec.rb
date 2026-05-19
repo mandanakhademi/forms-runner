@@ -1,7 +1,7 @@
 require "rails_helper"
 
 describe AwsSesFormSubmissionMailer, type: :mailer do
-  subject(:mail) { described_class.submission_email(answer_content_html:, answer_content_plain_text:, submission:, files:, csv_filename:, json_filename:) }
+  subject(:mail) { described_class.submission_email(submission:, files:, csv_filename:, json_filename:) }
 
   let(:submission) do
     build(:submission, form_document: form_document, created_at: submission_timestamp,
@@ -9,8 +9,6 @@ describe AwsSesFormSubmissionMailer, type: :mailer do
   end
   let(:form_document) { build(:v2_form_document, name: form_name, submission_email: submission_email_address, payment_url:) }
   let(:form_name) { "Form 1" }
-  let(:answer_content_html) { "My question: My answer" }
-  let(:answer_content_plain_text) { "My question: My answer" }
   let(:is_preview) { false }
   let(:submission_email_address) { "testing@gov.uk" }
   let(:files) { {} }
@@ -20,6 +18,14 @@ describe AwsSesFormSubmissionMailer, type: :mailer do
   let(:json_filename) { nil }
   let(:submission_timestamp) { Time.utc(2022, 12, 14, 13, 0o0, 0o0) }
   let(:submission_locale) { :en }
+
+  let(:journey) { instance_double(Flow::Journey, completed_steps: [step]) }
+  let(:question) { build :text, question_text: "What is the meaning of life?", text: "The meaning of life is 42" }
+  let(:step) { build :step, question: }
+
+  before do
+    allow(Flow::Journey).to receive(:new).and_return(journey)
+  end
 
   context "when form filler submits a completed form" do
     context "when form is not in preview" do
@@ -43,7 +49,8 @@ describe AwsSesFormSubmissionMailer, type: :mailer do
         end
 
         it "includes the answers" do
-          expect(part.body).to match(answer_content_html)
+          expect(part.body).to have_css("h3", text: "What is the meaning of life?")
+          expect(part.body).to have_css("p", text: "The meaning of life is 42")
         end
 
         it "includes the form title text" do
@@ -115,7 +122,8 @@ describe AwsSesFormSubmissionMailer, type: :mailer do
         let(:part) { mail.text_part }
 
         it "includes the answers" do
-          expect(part.body).to match(answer_content_plain_text)
+          expect(part.body).to match("What is the meaning of life?")
+          expect(part.body).to match("The meaning of life is 42")
         end
 
         it "includes the form title text" do

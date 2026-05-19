@@ -29,7 +29,7 @@
   <%= I18n.t("mailer.submission.json_file", filename: @json_filename) %>
 <% end %>
 
-<%= @answer_content_plain_text %>
+<%= @submission.answer_content_for_email_plain_text %>
 
 ---
 
