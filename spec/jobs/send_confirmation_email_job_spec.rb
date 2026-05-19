@@ -54,30 +54,16 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
     )
 
     expect(FormSubmissionConfirmationMailer).to have_received(:send_confirmation_email).with(
-      what_happens_next_markdown: "Please wait for a response",
-      what_happens_next_markdown_cy: nil,
-      support_contact_details: have_attributes(
-        phone: "0203 222 2222",
-        call_charges_url: "https://www.gov.uk/call-charges",
-        email: "help@example.gov.uk",
-        url: "https://example.gov.uk/help",
-        url_text: "Get help",
-      ),
-      support_contact_details_cy: nil,
+      form: submission.form,
+      welsh_form: nil,
+      submission:,
       notify_response_id: "confirmation-ref",
       confirmation_email_address: "testing@gov.uk",
-      mailer_options: an_instance_of(SendConfirmationEmailJob::MailerOptions),
-      submission_locale: "en",
     )
   end
 
   context "when submission locale is Welsh" do
-    let(:welsh_form_document) do
-      build(:v2_form_document,
-            what_happens_next_markdown: "Arhoswch am ymateb",
-            support_phone: "0291 111 1111",
-            support_email: "cymraeg@example.gov.uk")
-    end
+    let(:welsh_form_document) { build(:v2_form_document, name: "Welsh Form") }
 
     before do
       submission.update!(submission_locale: "cy")
@@ -100,7 +86,7 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
       expect(mail.govuk_notify_template).to eq("7891011")
     end
 
-    it "passes the Welsh what happens next to the mailer" do
+    it "passes the Welsh form to the mailer" do
       allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email).and_call_original
 
       described_class.perform_now(
@@ -110,24 +96,7 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
       )
 
       expect(FormSubmissionConfirmationMailer).to have_received(:send_confirmation_email).with(
-        hash_including(what_happens_next_markdown_cy: "Arhoswch am ymateb"),
-      )
-    end
-
-    it "passes the Welsh support details" do
-      allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email).and_call_original
-
-      described_class.perform_now(
-        submission:,
-        notify_response_id:,
-        confirmation_email_address:,
-      )
-
-      expect(FormSubmissionConfirmationMailer).to have_received(:send_confirmation_email).with(
-        hash_including(support_contact_details_cy: have_attributes(
-          phone: "0291 111 1111",
-          email: "cymraeg@example.gov.uk",
-        )),
+        hash_including(welsh_form: have_attributes(name: welsh_form_document.name)),
       )
     end
   end
