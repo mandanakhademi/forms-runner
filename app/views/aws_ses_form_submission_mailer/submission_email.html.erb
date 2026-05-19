@@ -7,7 +7,7 @@
 <p><%= I18n.t("mailer.form_name", form_name: @submission.form.name) %></p>
 
 <p>
-  <%= I18n.t("mailer.submission.time", time: @submission.submission_time.strftime("%l:%M%P").strip, date: @submission.submission_time.strftime("%-d %B %Y") ) %>
+  <%= I18n.t("mailer.submission.time", time: format_time(@submission.submission_time), date: format_date(@submission.submission_time) ) %>
 </p>
 <p>
   <% if @welsh_submission %>

@@ -11,4 +11,12 @@ module EmailFormatHelper
     output = normalize_whitespace(text)
     convert_newlines_to_html(output)
   end
+
+  def format_date(datetime)
+    I18n.l(datetime, format: "%-d %B %Y")
+  end
+
+  def format_time(datetime)
+    datetime.strftime("%l:%M%P").strip
+  end
 end
