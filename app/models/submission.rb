@@ -57,8 +57,8 @@ class Submission < ApplicationRecord
     Mode.new(mode)
   end
 
-  def answer_content_for_email_html
-    ses_email_formatter.build_question_answers_section_html
+  def answer_content_for_email_html(heading_tag:)
+    ses_email_formatter.build_question_answers_section_html(heading_tag:)
   end
 
   def answer_content_for_email_plain_text

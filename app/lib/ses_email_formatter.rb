@@ -11,9 +11,9 @@ class SesEmailFormatter
     @steps = steps
   end
 
-  def build_question_answers_section_html
+  def build_question_answers_section_html(heading_tag: "h3")
     @steps.map { |step|
-      [prep_question_title_html(step),
+      [prep_question_title_html(step, heading_tag),
        prep_answer_text_html(step)].join
     }.join(H_RULE)
   end
@@ -27,8 +27,8 @@ class SesEmailFormatter
 
 private
 
-  def prep_question_title_html(step)
-    "<h3>#{prep_question_title_plain_text(step)}</h3>"
+  def prep_question_title_html(step, heading_tag)
+    "<#{heading_tag}>#{prep_question_title_plain_text(step)}</#{heading_tag}>"
   end
 
   def prep_answer_text_html(step)

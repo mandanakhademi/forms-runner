@@ -29,6 +29,10 @@ RSpec.describe SesEmailFormatter do
       it "returns question and and answer HTML" do
         expect(ses_email_formatter.build_question_answers_section_html).to eq("<h3>What is the meaning of life?</h3><p>42</p>")
       end
+
+      it "uses the heading level provided" do
+        expect(ses_email_formatter.build_question_answers_section_html(heading_tag: "h2")).to eq("<h2>What is the meaning of life?</h2><p>42</p>")
+      end
     end
 
     context "when the answer has multiple attributes" do
