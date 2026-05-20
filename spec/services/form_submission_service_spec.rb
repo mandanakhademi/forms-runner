@@ -190,8 +190,12 @@ RSpec.describe FormSubmissionService, :capture_logging do
           }.to change(Submission, :count).by(1)
                                          .and change(Delivery, :count).by(1)
 
-          expect(Submission.last).to have_attributes(reference:, form_id: form.id, answers: answers.deep_stringify_keys,
-                                                     mode: "form", form_document: document_json,
+          expect(Submission.last).to have_attributes(reference:,
+                                                     form_id: form.id,
+                                                     answers: answers.deep_stringify_keys,
+                                                     mode: "form",
+                                                     form_document: document_json,
+                                                     welsh_form_document: nil,
                                                      submission_locale: "en")
         end
 
@@ -283,6 +287,32 @@ RSpec.describe FormSubmissionService, :capture_logging do
         end
       end
 
+      context "when Welsh has been used to complete the form" do
+        let(:locales_used) { %i[en cy] }
+
+        before do
+          ActiveResource::HttpMock.respond_to do |mock|
+            mock.get "/api/v2/forms/1/live?language=cy", {}, welsh_form_document.to_json, 200
+          end
+        end
+
+        it "fetches the Welsh form" do
+          service.submit
+          expect(ActiveResource::HttpMock.requests).to include ActiveResource::Request.new(:get, "/api/v2/forms/1/live?language=cy")
+        end
+
+        it "saves the submission data including the Welsh version of the form" do
+          expect {
+            service.submit
+          }.to change(Submission, :count).by(1)
+
+          expect(Submission.last.form_document["language"]).to eq("en")
+          expect(Submission.last.form_document["name"]).to eq("Form 1")
+          expect(Submission.last.welsh_form_document["language"]).to eq("cy")
+          expect(Submission.last.welsh_form_document["name"]).to eq("Welsh Form 1")
+        end
+      end
+
       context "when form is not in english" do
         let(:submission_type) { "email" }
         let(:submission_format) { [] }
@@ -305,9 +335,21 @@ RSpec.describe FormSubmissionService, :capture_logging do
             service.submit
           }.to change(Submission, :count).by(1)
 
-          # expect(Submission.last).to have_attributes(form_id: form.id, answers: answers.deep_stringify_keys, form_document: document_json)
           expect(Submission.last.form_document["language"]).to eq("en")
           expect(Submission.last.form_document["name"]).to eq("Form 1")
+        end
+
+        context "when Welsh has been used to complete the form" do
+          let(:locales_used) { %i[en cy] }
+
+          it "saves the original Welsh version of the form on the submission" do
+            expect {
+              service.submit
+            }.to change(Submission, :count).by(1)
+
+            expect(Submission.last.welsh_form_document["language"]).to eq("cy")
+            expect(Submission.last.welsh_form_document["name"]).to eq("Welsh Form 1")
+          end
         end
       end
     end
