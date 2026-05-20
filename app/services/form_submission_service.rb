@@ -53,7 +53,15 @@ private
 
     raise ActiveResource::ResourceNotFound.new(404, "Not Found") if english_form_document.nil?
 
+    @welsh_form = form if form.welsh?
     @form = Form.new(english_form_document)
+  end
+
+  def welsh_form_document
+    return unless submission_locale == :cy
+    return @welsh_form.document_json if @welsh_form.present?
+
+    Api::V2::FormDocumentRepository.find_with_mode(form_id: form.id, mode:, language: :cy)
   end
 
   def validate_submission
@@ -89,6 +97,7 @@ private
       answers: current_context.answers,
       mode: mode,
       form_document: form.document_json,
+      welsh_form_document: welsh_form_document,
       submission_locale:,
       created_at: timestamp,
     )
