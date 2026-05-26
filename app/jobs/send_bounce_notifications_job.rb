@@ -8,7 +8,11 @@ class SendBounceNotificationsJob < ApplicationJob
 
     bounced_deliveries = Delivery.bounced_on_day(bounced_on_date)
     bounced_deliveries.group_by(&:form_id).each do |form_id, deliveries|
+      CurrentJobLoggingAttributes.form_id = form_id
+
       form = deliveries.first.form
+      CurrentJobLoggingAttributes.form_name = form.name
+
       group = Api::V2::GroupResource.find(form_id)
 
       users = user_role == :organisation_admin ? group.organisation.organisation_admin_users : group.group_admin_users
@@ -19,7 +23,11 @@ class SendBounceNotificationsJob < ApplicationJob
         ).deliver_now
       end
 
-      Rails.logger.info "Sent bounce notifications to #{user_role.to_s.gsub('_', ' ')} users for bounced deliveries on #{bounced_on_date.strftime('%-d %B %Y')} for form #{form_id}"
+      if users.any?
+        Rails.logger.info "Sent bounce notifications to #{users.length} #{user_role.to_s.gsub('_', ' ')} users for bounced deliveries on #{bounced_on_date.strftime('%-d %B %Y')} for form #{form_id}"
+      else
+        Rails.logger.info "No #{user_role.to_s.gsub('_', ' ')} users for form #{form_id}, no bounce notifications sent"
+      end
     end
   end
 end
