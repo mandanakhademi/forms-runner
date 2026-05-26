@@ -43,10 +43,12 @@ RSpec.describe SendBounceNotificationsJob, :capture_logging do
       expect(log_lines).to include(
         hash_including(
           "level" => "INFO",
+          "form_id" => form_with_bounces.form_id,
           "message" => "Sent bounce notifications to group admin users for bounced deliveries on 6 May 2026 for form #{form_with_bounces.form_id}",
         ),
         hash_including(
           "level" => "INFO",
+          "form_id" => other_form_with_bounces.form_id,
           "message" => "Sent bounce notifications to group admin users for bounced deliveries on 6 May 2026 for form #{other_form_with_bounces.form_id}",
         ),
       )
@@ -73,6 +75,7 @@ RSpec.describe SendBounceNotificationsJob, :capture_logging do
       expect(log_lines).to include(
         hash_including(
           "level" => "INFO",
+          "form_id" => form_with_bounces.form_id,
           "message" => "Sent bounce notifications to group admin users for bounced deliveries on 6 May 2026 for form #{form_with_bounces.form_id}",
         ),
       )
@@ -99,6 +102,7 @@ RSpec.describe SendBounceNotificationsJob, :capture_logging do
       expect(log_lines).to include(
         hash_including(
           "level" => "INFO",
+          "form_id" => form_with_bounces.form_id,
           "message" => "Sent bounce notifications to organisation admin users for bounced deliveries on 6 May 2026 for form #{form_with_bounces.form_id}",
         ),
       )
