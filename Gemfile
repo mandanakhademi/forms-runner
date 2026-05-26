@@ -68,7 +68,7 @@ gem "opentelemetry-sdk", "~> 1.11"
 
 # For AWS interactions
 gem "aws-sdk-cloudwatch"
-gem "aws-sdk-codepipeline", "~> 1.113"
+gem "aws-sdk-codepipeline", "~> 1.114"
 gem "aws-sdk-kms"
 gem "aws-sdk-s3"
 gem "aws-sdk-sesv2"
