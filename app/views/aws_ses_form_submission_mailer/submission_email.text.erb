@@ -4,7 +4,7 @@
 <% end %>
 <%= I18n.t("mailer.form_name", form_name: @submission.form.name) %>
 
-<%= I18n.t("mailer.submission.time", time: @submission.submission_time.strftime("%l:%M%P").strip, date: @submission.submission_time.strftime("%-d %B %Y") ) %>
+<%= I18n.t("mailer.submission.time", time: format_time(@submission.submission_time), date: format_date(@submission.submission_time) ) %>
 
 <% if @welsh_submission %>
 <%= I18n.t("mailer.submission.welsh_submission") %>
@@ -29,7 +29,7 @@
   <%= I18n.t("mailer.submission.json_file", filename: @json_filename) %>
 <% end %>
 
-<%= @answer_content_plain_text %>
+<%= @submission.answer_content_for_email_plain_text %>
 
 ---
 

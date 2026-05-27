@@ -1,5 +1,6 @@
 class FormSubmissionConfirmationMailer < GovukNotifyRails::Mailer
   include NotifyUtils
+  include EmailFormatHelper
 
   def send_confirmation_email(form:, welsh_form:, submission:, notify_response_id:, confirmation_email_address:)
     @submission_locale = submission.submission_locale.to_sym
@@ -66,9 +67,5 @@ private
     return Settings.govuk_notify.form_filler_confirmation_email_welsh_template_id if @submission_locale == :cy
 
     Settings.govuk_notify.form_filler_confirmation_email_template_id
-  end
-
-  def normalize_whitespace(text)
-    text.strip.gsub(/\r\n?/, "\n").split(/\n\n+/).map(&:strip).join("\n\n")
   end
 end

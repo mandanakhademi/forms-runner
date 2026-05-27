@@ -7,7 +7,7 @@
 <p><%= I18n.t("mailer.form_name", form_name: @submission.form.name) %></p>
 
 <p>
-  <%= I18n.t("mailer.submission.time", time: @submission.submission_time.strftime("%l:%M%P").strip, date: @submission.submission_time.strftime("%-d %B %Y") ) %>
+  <%= I18n.t("mailer.submission.time", time: format_time(@submission.submission_time), date: format_date(@submission.submission_time) ) %>
 </p>
 <p>
   <% if @welsh_submission %>
@@ -40,7 +40,7 @@
   <p><%= I18n.t("mailer.submission.json_file", filename: @json_filename) %></p>
 <% end %>
 
-<%= @answer_content_html.html_safe %>
+<%= @submission.answer_content_for_email_html.html_safe %>
 
 <hr style="border: 0; height: 1px; background: #B1B4B6; margin: 30px 0 30px 0;">
 
