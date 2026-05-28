@@ -1,7 +1,7 @@
 class BounceNotificationMailer < GovukNotifyRails::Mailer
   include NotifyUtils
 
-  def bounce_notification_email(form:, group_name:, user:, user_role:, deliveries:, bounced_on_date:)
+  def bounce_notification_email(form:, group_name:, user:, user_role:, deliveries:)
     set_template(Settings.govuk_notify.bounce_notification_to_group_admins_template_id)
     set_email_reply_to(Settings.govuk_notify.zendesk_reply_to_id)
 
@@ -24,7 +24,7 @@ class BounceNotificationMailer < GovukNotifyRails::Mailer
       deadline_date: deadline_date(deliveries),
       is_organisation_admin: make_notify_boolean(user_role == :organisation_admin),
       is_group_admin: make_notify_boolean(user_role == :group_admin),
-      contacted_group_admins_paragraph: contacted_group_admins_paragraph(user_role:, group_name:, bounced_on_date:),
+      contacted_group_admins_paragraph: contacted_group_admins_paragraph(user_role:, group_name:),
     )
 
     mail(to: user.email)
@@ -69,10 +69,9 @@ private
     deadline_date_time.strftime("%-d %B %Y")
   end
 
-  def contacted_group_admins_paragraph(user_role:, group_name:, bounced_on_date:)
+  def contacted_group_admins_paragraph(user_role:, group_name:)
     return "" if user_role == :group_admin
 
-    contacted_date = (bounced_on_date + 1.day).strftime("%-d %B %Y")
-    I18n.t("mailer.bounce_notification.contacted_group_admins_paragraph", group_name:, contacted_date:)
+    I18n.t("mailer.bounce_notification.contacted_group_admins_paragraph", group_name:)
   end
 end

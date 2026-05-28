@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe BounceNotificationMailer do
   describe "#bounce_notification_to_group_admins_email" do
     subject(:mail) do
-      described_class.bounce_notification_email(form:, group_name:, user:, user_role:, deliveries:, bounced_on_date:)
+      described_class.bounce_notification_email(form:, group_name:, user:, user_role:, deliveries:)
     end
 
     let(:deliveries) { create_list :delivery, 3, :bounced, :immediate }
@@ -52,9 +52,7 @@ RSpec.describe BounceNotificationMailer do
         end
 
         it "sets the personalisation for the contacted_group_admins_paragraph" do
-          expected_paragraph = I18n.t("mailer.bounce_notification.contacted_group_admins_paragraph",
-                                      group_name:,
-                                      contacted_date: "8 May 2026")
+          expected_paragraph = I18n.t("mailer.bounce_notification.contacted_group_admins_paragraph", group_name:)
           expect(mail.govuk_notify_personalisation[:contacted_group_admins_paragraph]).to eq expected_paragraph
         end
       end

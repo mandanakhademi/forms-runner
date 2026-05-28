@@ -9,15 +9,15 @@ RSpec.describe ScheduleBounceNotificationsJob do
     end
   end
 
-  it "schedules a SendBounceNotifications job to send to group admins with yesterday's date" do
+  it "schedules a SendBounceNotifications job to send the initial notifications with yesterday's date" do
     expect(SendBounceNotificationsJob).to have_received(:perform_later)
-                                            .with({ bounced_on_date: Date.new(2026, 5, 11), user_role: :group_admin })
+                                            .with({ bounced_on_date: Date.new(2026, 5, 11), is_escalation: false })
                                             .once
   end
 
-  it "schedules a SendBounceNotifications job to send to organisation admins with a date of 8 days ago" do
+  it "schedules a SendBounceNotifications job to send the escalation notifications with a date of 8 days ago" do
     expect(SendBounceNotificationsJob).to have_received(:perform_later)
-                                            .with({ bounced_on_date: Date.new(2026, 5, 4), user_role: :organisation_admin })
+                                            .with({ bounced_on_date: Date.new(2026, 5, 4), is_escalation: true })
                                             .once
   end
 end
