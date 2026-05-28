@@ -24,12 +24,18 @@ class Submission < ApplicationRecord
 
   encrypts :answers
 
-  def journey
-    @journey ||= Flow::Journey.new(answer_store:, form_document: form_document_resource)
+  def journey(locale: :en)
+    return welsh_journey if locale.to_sym == :cy
+
+    english_journey
   end
 
   def form
     @form ||= form_from_document
+  end
+
+  def welsh_form
+    @welsh_form ||= Form.new(welsh_form_document_resource) if welsh_form_document
   end
 
   def submission_time
@@ -53,12 +59,12 @@ class Submission < ApplicationRecord
     Mode.new(mode)
   end
 
-  def answer_content_for_email_html
-    ses_email_formatter.build_question_answers_section_html
+  def answer_content_for_email_html(heading_tag:, locale: :en, confirmation_email: false)
+    ses_email_formatter(locale, confirmation_email).build_question_answers_section_html(heading_tag:)
   end
 
-  def answer_content_for_email_plain_text
-    ses_email_formatter.build_question_answers_section_plain_text
+  def answer_content_for_email_plain_text(locale: :en, confirmation_email: false)
+    ses_email_formatter(locale, confirmation_email).build_question_answers_section_plain_text
   end
 
 private
@@ -75,7 +81,20 @@ private
     @form_document_resource ||= Api::V2::FormDocumentResource.new(form_document, true)
   end
 
-  def ses_email_formatter
-    SesEmailFormatter.new(submission_reference: reference, steps: journey.completed_steps)
+  def ses_email_formatter(locale, confirmation_email)
+    SesEmailFormatter.new(submission_reference: reference, steps: journey(locale:).completed_steps,
+                          confirmation_email:)
+  end
+
+  def english_journey
+    @english_journey ||= Flow::Journey.new(answer_store:, form_document: form_document_resource)
+  end
+
+  def welsh_journey
+    @welsh_journey ||= Flow::Journey.new(answer_store:, form_document: welsh_form_document_resource)
+  end
+
+  def welsh_form_document_resource
+    @welsh_form_document_resource ||= Api::V2::FormDocumentResource.new(welsh_form_document, true)
   end
 end

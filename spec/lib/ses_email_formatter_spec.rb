@@ -1,13 +1,16 @@
 require "rails_helper"
 
 RSpec.describe SesEmailFormatter do
-  subject(:ses_email_formatter) { described_class.new(submission_reference:, steps: steps) }
+  subject(:ses_email_formatter) { described_class.new(submission_reference:, steps:, confirmation_email:) }
 
+  let(:confirmation_email) { false }
   let(:submission_reference) { "SUB-12345" }
   let(:text_question) { build :text, question_text: "What is the meaning of life?", text: "42" }
   let(:text_step) { build :step, question: text_question }
   let(:name_question) { build :first_middle_last_name_question, question_text: "What is your name?" }
   let(:name_step) { build :step, question: name_question }
+  let(:file_question) { build :file, question_text: "Upload a file", original_filename: "a-file.txt" }
+  let(:file_step) { build :step, question: file_question }
   let(:none_of_the_above_question) do
     build(
       :selection,
@@ -28,6 +31,10 @@ RSpec.describe SesEmailFormatter do
     context "when there is one step" do
       it "returns question and and answer HTML" do
         expect(ses_email_formatter.build_question_answers_section_html).to eq("<h3>What is the meaning of life?</h3><p>42</p>")
+      end
+
+      it "uses the heading level provided" do
+        expect(ses_email_formatter.build_question_answers_section_html(heading_tag: "h2")).to eq("<h2>What is the meaning of life?</h2><p>42</p>")
       end
     end
 
@@ -85,6 +92,24 @@ RSpec.describe SesEmailFormatter do
 
         it "returns the skipped none of the above answer text" do
           expect(ses_email_formatter.build_question_answers_section_html).to eq("<h3>What sandwich do you want?</h3><p>None of the above</p><h4>Specify your desired sandwich (optional)</h4><p>[This question was skipped]</p>")
+        end
+      end
+    end
+
+    context "when there is a file question" do
+      let(:steps) { [file_step] }
+
+      context "when formatting for a submission email" do
+        it "returns the content for a submission email" do
+          expect(ses_email_formatter.build_question_answers_section_html).to eq("<h3>Upload a file</h3><p>a-file_SUB-12345.txt (attached to this email)</p>")
+        end
+      end
+
+      context "when formatting for a confirmation email" do
+        let(:confirmation_email) { true }
+
+        it "returns the content for a confirmation email" do
+          expect(ses_email_formatter.build_question_answers_section_html).to eq("<h3>Upload a file</h3><p>You uploaded a file called a-file.txt</p>")
         end
       end
     end
@@ -163,6 +188,24 @@ RSpec.describe SesEmailFormatter do
 
         it "returns the skipped none of the above answer text" do
           expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("What sandwich do you want?\n\nNone of the above\n\nSpecify your desired sandwich (optional)\n\n[This question was skipped]")
+        end
+      end
+    end
+
+    context "when there is a file question" do
+      let(:steps) { [file_step] }
+
+      context "when formatting for a submission email" do
+        it "returns the content for a submission email" do
+          expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("Upload a file\n\na-file_SUB-12345.txt (attached to this email)")
+        end
+      end
+
+      context "when formatting for a confirmation email" do
+        let(:confirmation_email) { true }
+
+        it "returns the content for a confirmation email" do
+          expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("Upload a file\n\nYou uploaded a file called a-file.txt")
         end
       end
     end

@@ -6,14 +6,15 @@ class SesEmailFormatter
 
   class FormattingError < StandardError; end
 
-  def initialize(submission_reference:, steps:)
+  def initialize(submission_reference:, steps:, confirmation_email:)
     @submission_reference = submission_reference
     @steps = steps
+    @confirmation_email = confirmation_email
   end
 
-  def build_question_answers_section_html
+  def build_question_answers_section_html(heading_tag: "h3")
     @steps.map { |step|
-      [prep_question_title_html(step),
+      [prep_question_title_html(step, heading_tag),
        prep_answer_text_html(step)].join
     }.join(H_RULE)
   end
@@ -27,8 +28,8 @@ class SesEmailFormatter
 
 private
 
-  def prep_question_title_html(step)
-    "<h3>#{prep_question_title_plain_text(step)}</h3>"
+  def prep_question_title_html(step, heading_tag)
+    "<#{heading_tag}>#{prep_question_title_plain_text(step)}</#{heading_tag}>"
   end
 
   def prep_answer_text_html(step)
@@ -58,7 +59,7 @@ private
   end
 
   def prep_answer_text(step)
-    answer = step.show_answer_in_email(submission_reference: @submission_reference)
+    answer = step.show_answer_in_email(submission_reference: @submission_reference, confirmation_email: @confirmation_email)
 
     return "[#{I18n.t('mailer.submission.question_skipped')}]" if answer.blank?
 
