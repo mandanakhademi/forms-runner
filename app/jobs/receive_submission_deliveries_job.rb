@@ -20,11 +20,11 @@ class ReceiveSubmissionDeliveriesJob < ApplicationJob
 
       raise "Unexpected event type:#{ses_event_type}" unless ses_event_type == "Delivery"
 
-      delivery_time = Time.zone.parse(ses_message["delivery"]["timestamp"])
-      process_delivery(delivery, submission, delivered_at: delivery_time)
+      delivered_at = Time.zone.parse(ses_message["delivery"]["timestamp"])
+      process_delivery(delivery, submission, delivered_at:)
 
       if delivery.immediate?
-        submission_duration_ms = ((delivery_time - submission.created_at) * 1000).round
+        submission_duration_ms = ((delivered_at - submission.created_at) * 1000).round
         CloudWatchService.record_submission_delivery_latency_metric(submission_duration_ms, "Email")
       end
     end
