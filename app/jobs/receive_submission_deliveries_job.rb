@@ -1,15 +1,13 @@
 class ReceiveSubmissionDeliveriesJob < ApplicationJob
   queue_as :background
 
-  SQS_QUEUE_NAME = "submission_email_ses_successful_deliveries_queue".freeze
-
   def perform
     CloudWatchService.record_job_started_metric(self.class.name)
     CurrentJobLoggingAttributes.job_class = self.class.name
     CurrentJobLoggingAttributes.job_id = job_id
 
     poller = AwsSesMessagePoller.new(
-      queue_name: SQS_QUEUE_NAME,
+      queue_name: Settings.aws.submission_email_deliveries_sqs_queue_name,
       job_class_name: self.class.name,
       job_id: job_id,
     )
