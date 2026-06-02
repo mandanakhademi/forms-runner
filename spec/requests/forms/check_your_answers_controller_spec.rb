@@ -6,7 +6,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
   let(:timestamp_of_request) { Time.utc(2022, 12, 14, 10, 0o0, 0o0) }
 
   let(:form_id) { 2 }
-  let(:send_copy_of_answers) { "enabled" }
+  let(:send_copy_of_answers) { "disabled" }
   let(:form_data) do
     build(:v2_form_document, :with_support, :with_submission_email,
           form_id: form_id,
@@ -138,8 +138,8 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
         expect(response).to have_http_status(:ok)
       end
 
-      it "Displays a back link to the copy of answers page" do
-        expect(response.body).to include(copy_of_answers_path(mode:, form_id:, form_slug: form_data.form_slug))
+      it "Displays a back link to the last step" do
+        expect(response.body).to include(form_step_path(mode:, form_id:, form_slug: form_data.form_slug, step_slug: 2))
       end
 
       it "Returns the correct X-Robots-Tag header" do
@@ -197,15 +197,82 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
         include_examples "for notification references"
       end
 
-      context "when send_copy_of_answers is disabled on the form" do
-        let(:send_copy_of_answers) { "disabled" }
+      context "when the user has said yes to copy of answers and has a One Login email" do
+        let(:send_copy_of_answers) { "enabled" }
+        let(:store) do
+          {
+            answers:,
+            confirmation_details: {
+              form_id.to_s => {
+                "wants_copy_of_answers" => true,
+                "copy_of_answers_email_address" => "user@example.gov.uk",
+              },
+            },
+          }.with_indifferent_access
+        end
 
         before do
           get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
         end
 
-        it "Displays a back link to the last step" do
-          expect(response.body).to include(form_step_path(mode:, form_id:, form_slug: form_data.form_slug, step_slug: 2))
+        it "hides the confirmation email question" do
+          expect(response.body).not_to include("email_confirmation_input[send_confirmation]")
+        end
+      end
+
+      context "when the user has said yes to copy of answers but has no One Login email" do
+        let(:send_copy_of_answers) { "enabled" }
+        let(:store) do
+          {
+            answers:,
+            confirmation_details: {
+              form_id.to_s => {
+                "wants_copy_of_answers" => true,
+              },
+            },
+          }.with_indifferent_access
+        end
+
+        before do
+          get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
+        end
+
+        it "shows the confirmation email question" do
+          expect(response.body).to include("email_confirmation_input[send_confirmation]")
+        end
+      end
+
+      context "when the user has said no to copy of answers" do
+        let(:send_copy_of_answers) { "enabled" }
+        let(:store) do
+          {
+            answers:,
+            confirmation_details: {
+              form_id.to_s => {
+                "wants_copy_of_answers" => false,
+              },
+            },
+          }.with_indifferent_access
+        end
+
+        before do
+          get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
+        end
+
+        it "shows the confirmation email question" do
+          expect(response.body).to include("email_confirmation_input[send_confirmation]")
+        end
+      end
+
+      context "when send_copy_of_answers is enabled on the form" do
+        let(:send_copy_of_answers) { "enabled" }
+
+        before do
+          get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
+        end
+
+        it "Displays a back link to the copy of answers page" do
+          expect(response.body).to include(copy_of_answers_path(mode:, form_id:, form_slug: form_data.form_slug))
         end
       end
     end
@@ -288,6 +355,32 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
       end
 
       include_examples "for notification references"
+    end
+
+    context "when the user has said yes to copy of answers and has a One Login email" do
+      let(:store) do
+        {
+          answers:,
+          confirmation_details: {
+            form_id.to_s => {
+              "wants_copy_of_answers" => true,
+              "copy_of_answers_email_address" => "user@example.gov.uk",
+            },
+          },
+        }.with_indifferent_access
+      end
+
+      before do
+        travel_to frozen_time do
+          perform_enqueued_jobs do
+            post form_submit_answers_path(form_id:, form_slug: "form-name", mode:), params: {}
+          end
+        end
+      end
+
+      it "submits successfully without email_confirmation_input params" do
+        expect(response).to redirect_to(form_submitted_path)
+      end
     end
 
     context "when the submission type is s3" do

@@ -366,6 +366,7 @@ cy:
       copy_of_answers: Cael copi o'ch atebion
       declaration: Datganiad
       'no': Na
+      no_copy_of_answers: Rydych wedi dewis peidio â chael copi o'ch atebion
       not_completed: Heb ei gwblhau
       send_copy: 'Byddwn yn anfon e-bost cadarnhad gyda chopi o''ch atebion i''ch cyfeiriad e-bost GOV.UK One Login: %{email_address}'
       submit: Cyflwyno
