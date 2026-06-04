@@ -68,7 +68,7 @@ private
   def prep_answer_text(step)
     answer = step.show_answer_in_email(submission_reference: @submission_reference, confirmation_email: @confirmation_email)
 
-    return "[#{I18n.t('mailer.submission.question_skipped')}]" if answer.blank?
+    return skipped_question_text if answer.blank?
 
     sanitize(answer)
   rescue StandardError
@@ -78,7 +78,7 @@ private
   def prep_none_of_the_above_answer_text(step)
     answer = step.question.none_of_the_above_answer
 
-    return "[#{I18n.t('mailer.submission.question_skipped')}]" if answer.blank?
+    return skipped_question_text if answer.blank?
 
     sanitize(answer)
   rescue StandardError
@@ -104,5 +104,13 @@ private
   def sanitize(text)
     text
       .then { normalize_whitespace _1 }
+  end
+
+  def skipped_question_text
+    if @confirmation_email
+      I18n.t("mailer.submission_confirmation.not_completed")
+    else
+      "[#{I18n.t('mailer.submission.question_skipped')}]"
+    end
   end
 end
