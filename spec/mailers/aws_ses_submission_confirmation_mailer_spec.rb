@@ -88,12 +88,10 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
         expect(part.body).to include("What is your name?")
         expect(part.body).to include("First name: Jane")
         expect(part.body).to include("Last name: Doe")
+        expect(part.body).to include("Skipped question")
+        expect(part.body).to include("Not completed")
         expect(part.body).to include("Upload a file")
         expect(part.body).to include(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt"))
-      end
-
-      it "does not include skipped questions" do
-        expect(part.body).not_to include("Skipped question")
       end
     end
 
@@ -124,12 +122,10 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
         expect(part.body).to have_css("h4", text: "What is your name?")
         expect(part.body).to have_text("First name: Jane")
         expect(part.body).to have_text("Last name: Doe")
+        expect(part.body).to have_css("h4", text: "Skipped question")
+        expect(part.body).to have_css("p", text: "Not completed")
         expect(part.body).to have_css("h4", text: "Upload a file")
         expect(part.body).to have_text(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt"))
-      end
-
-      it "does not include skipped questions" do
-        expect(part.body).not_to include("Skipped question")
       end
     end
   end
@@ -220,7 +216,7 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
             steps: [
               build(:v2_question_step, :with_text_settings, question_text: "Beth yw eich hoff liw?", id: "q1", next_step_id: "q2"),
               build(:v2_question_step, :with_name_settings, question_text: "Beth yw dy enw?", id: "q2", next_step_id: "q3"),
-              build(:v2_question_step, :with_file_upload_settings, question_text: "Skipped question", id: "q3", next_step_id: "q4"),
+              build(:v2_question_step, :with_file_upload_settings, question_text: "Wedi hepgor cwestiwn", id: "q3", next_step_id: "q4"),
               build(:v2_question_step, :with_file_upload_settings, question_text: "Llwythwch ffeil i fyny", id: "q4"),
             ],
             start_page: "q1",
@@ -292,11 +288,15 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
       it "includes the English and Welsh answers" do
         expect(part.body).to include("What is your favourite colour?")
         expect(part.body).to include("What is your name?")
+        expect(part.body).to include("Skipped question")
+        expect(part.body).to include("Not completed")
         expect(part.body).to include("Upload a file")
         expect(part.body).to include(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt"))
 
         expect(part.body).to include("Beth yw eich hoff liw?")
         expect(part.body).to include("Beth yw dy enw?")
+        expect(part.body).to include("Wedi hepgor cwestiwn")
+        expect(part.body).to include("Heb ei gwblhau")
         expect(part.body).to include("Llwythwch ffeil i fyny")
         expect(part.body).to include(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt", locale: :cy))
       end
@@ -337,11 +337,15 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
       it "includes the English and Welsh answers" do
         expect(part.body).to have_css("h4", text: "What is your favourite colour?")
         expect(part.body).to have_css("h4", text: "What is your name?")
+        expect(part.body).to have_css("h4", text: "Skipped question")
+        expect(part.body).to have_css("p", text: "Not completed")
         expect(part.body).to have_css("h4", text: "Upload a file")
         expect(part.body).to have_text(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt"))
 
         expect(part.body).to have_css("h4", text: "Beth yw eich hoff liw?")
         expect(part.body).to have_css("h4", text: "Beth yw dy enw?")
+        expect(part.body).to have_css("h4", text: "Wedi hepgor cwestiwn")
+        expect(part.body).to have_css("p", text: "Heb ei gwblhau")
         expect(part.body).to have_css("h4", text: "Llwythwch ffeil i fyny")
         expect(part.body).to have_text(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt", locale: :cy))
       end

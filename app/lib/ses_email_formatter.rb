@@ -8,12 +8,8 @@ class SesEmailFormatter
 
   def initialize(submission_reference:, steps:, confirmation_email:)
     @submission_reference = submission_reference
-    @steps = confirmation_email ? answered_steps(steps) : steps
+    @steps = steps
     @confirmation_email = confirmation_email
-  end
-
-  def answered_steps(steps)
-    steps.filter { |step| step.show_answer.present? }
   end
 
   def build_question_answers_section_html(heading_level: 3)
@@ -72,7 +68,7 @@ private
   def prep_answer_text(step)
     answer = step.show_answer_in_email(submission_reference: @submission_reference, confirmation_email: @confirmation_email)
 
-    return "[#{I18n.t('mailer.submission.question_skipped')}]" if answer.blank?
+    return skipped_question_text if answer.blank?
 
     sanitize(answer)
   rescue StandardError
@@ -82,7 +78,7 @@ private
   def prep_none_of_the_above_answer_text(step)
     answer = step.question.none_of_the_above_answer
 
-    return "[#{I18n.t('mailer.submission.question_skipped')}]" if answer.blank?
+    return skipped_question_text if answer.blank?
 
     sanitize(answer)
   rescue StandardError
@@ -108,5 +104,13 @@ private
   def sanitize(text)
     text
       .then { normalize_whitespace _1 }
+  end
+
+  def skipped_question_text
+    if @confirmation_email
+      I18n.t("mailer.submission_confirmation.not_completed")
+    else
+      "[#{I18n.t('mailer.submission.question_skipped')}]"
+    end
   end
 end

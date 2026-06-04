@@ -68,24 +68,19 @@ RSpec.describe SesEmailFormatter do
       let(:text_question) { build :text, question_text: "What is the meaning of life?", text: nil }
       let(:steps) { [text_step] }
 
-      context "when formatting for a submission email" do
-        it "returns the blank answer text" do
-          expected = <<~HTML.strip.gsub("\n", "")
-            <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What is the meaning of life?</h3>
-            <p>[This question was skipped]</p>
-          HTML
-          expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
-        end
+      it "returns the blank answer text" do
+        expected = <<~HTML.strip.gsub("\n", "")
+          <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What is the meaning of life?</h3>
+          <p>[This question was skipped]</p>
+        HTML
+        expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
       end
 
       context "when formatting for a confirmation email" do
         let(:confirmation_email) { true }
-        let(:steps) { [text_step, name_step] }
 
-        it "does not include the un-answered question" do
-          html = ses_email_formatter.build_question_answers_section_html
-          expect(html).not_to include("What is the meaning of life?")
-          expect(html).to include("What is your name?")
+        it "returns the blank answer text" do
+          expect(ses_email_formatter.build_question_answers_section_html).to include("<p>Not completed</p>")
         end
       end
     end
@@ -150,6 +145,14 @@ RSpec.describe SesEmailFormatter do
             <p>[This question was skipped]</p>
           HTML
           expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
+        end
+
+        context "when formatting for a confirmation email" do
+          let(:confirmation_email) { true }
+
+          it "returns the skipped none of the above answer text for a confirmation email" do
+            expect(ses_email_formatter.build_question_answers_section_html).to include("<p>Not completed</p>")
+          end
         end
       end
     end
@@ -218,12 +221,9 @@ RSpec.describe SesEmailFormatter do
 
       context "when formatting for a confirmation email" do
         let(:confirmation_email) { true }
-        let(:steps) { [text_step, name_step] }
 
-        it "does not include the un-answered question" do
-          text = ses_email_formatter.build_question_answers_section_plain_text
-          expect(text).not_to include("What is the meaning of life?")
-          expect(text).to include("What is your name?")
+        it "returns the blank answer text" do
+          expect(ses_email_formatter.build_question_answers_section_plain_text).to include("Not completed")
         end
       end
     end
@@ -265,6 +265,14 @@ RSpec.describe SesEmailFormatter do
 
         it "returns the skipped none of the above answer text" do
           expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("What sandwich do you want?\n\nNone of the above\n\nSpecify your desired sandwich (optional)\n\n[This question was skipped]")
+        end
+
+        context "when formatting for a confirmation email" do
+          let(:confirmation_email) { true }
+
+          it "returns the skipped none of the above answer text" do
+            expect(ses_email_formatter.build_question_answers_section_plain_text).to include("Not completed")
+          end
         end
       end
     end
