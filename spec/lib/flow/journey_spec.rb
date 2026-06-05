@@ -186,6 +186,18 @@ RSpec.describe Flow::Journey do
         end
       end
 
+      context "when the answer store has data in the format for a repeatable question but the question is not repeatable" do
+        let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => [{ text: "Example text" }, { text: "Another answer" }], third_step_id => { selection: "Option 1" } } } } }
+
+        it "includes only steps before the answer with the wrong type" do
+          expect(journey.completed_steps.to_json).to eq [first_step_in_journey].to_json
+        end
+
+        it "includes the answer data in the question steps" do
+          expect(journey.completed_steps.map(&:question)).to all be_answered
+        end
+      end
+
       context "when step has a cannot_have_goto_page_before_routing_page error" do
         let(:validation_errors) { [{ name: "cannot_have_goto_page_before_routing_page" }] }
 

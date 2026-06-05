@@ -27,9 +27,9 @@ RSpec.describe RepeatableStep, type: :model do
     let(:answer_store) { instance_double(Store::SessionAnswerStore) }
 
     context "when form context contains a non-array questions attribute" do
-      it "raises an argument error" do
+      it "raises an error" do
         allow(answer_store).to receive(:get_stored_answer).with(repeatable_step).and_return("a string")
-        expect { repeatable_step.load_from_store(answer_store) }.to raise_error(ArgumentError)
+        expect { repeatable_step.load_from_store(answer_store) }.to raise_error(Step::StoredAnswerMismatch)
       end
     end
 
