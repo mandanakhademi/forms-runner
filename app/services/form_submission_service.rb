@@ -157,7 +157,7 @@ private
   end
 
   def send_copy_of_answers?
-    @current_context.wants_copy_of_answers? && @current_context.get_copy_of_answers_email_address.present?
+    @current_context.will_send_copy_of_answers?
   end
 
   def confirmation_email_address

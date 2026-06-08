@@ -20,6 +20,7 @@ module Flow
              :wants_copy_of_answers?,
              :save_copy_of_answers_email_address,
              :get_copy_of_answers_email_address,
+             :will_send_copy_of_answers?,
              to: :confirmation_details_store
 
     def save_step(step, locale: :en, context: nil)
