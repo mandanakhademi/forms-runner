@@ -120,7 +120,7 @@ module Flow
 
       begin
         step.load_from_store(@answer_store)
-      rescue ActiveModel::UnknownAttributeError, ArgumentError
+      rescue Step::StoredAnswerMismatch
         original_step
       end
     end

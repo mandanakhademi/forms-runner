@@ -4,6 +4,8 @@ class Step
 
   GOTO_PAGE_ERROR_NAMES = %w[cannot_have_goto_page_before_routing_page goto_page_doesnt_exist].freeze
 
+  class StoredAnswerMismatch < StandardError; end
+
   def initialize(form_document_step:, question:)
     @form_document_step = form_document_step
     @question = question
@@ -45,7 +47,17 @@ class Step
 
   def load_from_store(answer_store)
     attrs = answer_store.get_stored_answer(self)
-    question.assign_attributes(attrs || {})
+
+    if attrs.is_a?(Array)
+      raise StoredAnswerMismatch
+    end
+
+    begin
+      question.assign_attributes(attrs || {})
+    rescue ActiveModel::UnknownAttributeError
+      raise StoredAnswerMismatch
+    end
+
     self
   end
 

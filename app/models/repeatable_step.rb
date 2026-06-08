@@ -27,12 +27,18 @@ class RepeatableStep < Step
     question_attrs = answer_store.get_stored_answer(self)
 
     unless question_attrs.is_a?(Array)
-      raise ArgumentError
+      raise StoredAnswerMismatch
     end
 
     @questions = question_attrs.map do |attrs|
       q = @question.dup
-      q.assign_attributes(attrs || {})
+
+      begin
+        q.assign_attributes(attrs || {})
+      rescue ActiveModel::UnknownAttributeError
+        raise StoredAnswerMismatch
+      end
+
       q
     end
 
