@@ -11,16 +11,18 @@ module Forms
       return redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug, nil) unless current_context.can_visit?(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
 
       setup_check_your_answers
+      copy_of_answers_enabled = current_context.form.copy_of_answers_enabled?
       will_send_copy_of_answers = will_send_copy_of_answers?
       email_confirmation_input = will_send_copy_of_answers ? EmailConfirmationInput.new(send_confirmation: "skip_confirmation") : EmailConfirmationInput.new
 
       @support_details = current_context.support_details
 
-      render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, will_send_copy_of_answers: }
+      render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, copy_of_answers_enabled:, will_send_copy_of_answers: }
     end
 
     def submit_answers
       @support_details = current_context.support_details
+      copy_of_answers_enabled = current_context.form.copy_of_answers_enabled?
       will_send_copy_of_answers = will_send_copy_of_answers?
       email_confirmation_input = will_send_copy_of_answers ? EmailConfirmationInput.new(send_confirmation: "skip_confirmation") : EmailConfirmationInput.new(email_confirmation_input_params)
       requested_email_confirmation = email_confirmation_input.send_confirmation == "send_email"
@@ -28,7 +30,7 @@ module Forms
       unless email_confirmation_input.valid?
         setup_check_your_answers
 
-        return render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, will_send_copy_of_answers: }, status: :unprocessable_content
+        return render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, copy_of_answers_enabled:, will_send_copy_of_answers: }, status: :unprocessable_content
       end
 
       return redirect_to error_repeat_submission_path(@form.id) if current_context.form_submitted?
@@ -54,7 +56,7 @@ module Forms
       rescue FormSubmissionService::ConfirmationEmailToAddressError
         setup_check_your_answers
         email_confirmation_input.errors.add(:confirmation_email_address, :invalid_email)
-        render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, will_send_copy_of_answers: }, status: :unprocessable_content
+        render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, copy_of_answers_enabled:, will_send_copy_of_answers: }, status: :unprocessable_content
       end
     rescue StandardError => e
       log_rescued_exception(e)

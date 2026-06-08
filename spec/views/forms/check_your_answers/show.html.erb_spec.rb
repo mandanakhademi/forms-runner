@@ -8,7 +8,8 @@ describe "forms/check_your_answers/show.html.erb" do
   let(:declaration_text) { nil }
   let(:declaration_markdown) { nil }
   let(:email_confirmation_input) { build :email_confirmation_input }
-  let(:skip_confirmation_email) { false }
+  let(:copy_of_answers_enabled) { false }
+  let(:will_send_copy_of_answers) { false }
   let(:question) { build :text, question_text: "Do you want to remain anonymous?", text: "Yes" }
   let(:steps) { [build(:step, question:, form_document_step: build(:v2_question_step, :with_text_settings))] }
 
@@ -20,7 +21,7 @@ describe "forms/check_your_answers/show.html.erb" do
     assign(:steps, steps)
     assign(:form, form)
     assign(:support_details, support_details)
-    render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, skip_confirmation_email: }
+    render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, copy_of_answers_enabled:, will_send_copy_of_answers: }
   end
 
   context "when the form does not have a declaration" do
@@ -95,8 +96,10 @@ describe "forms/check_your_answers/show.html.erb" do
     expect(rendered).to have_text(I18n.t("support_details.get_help_with_this_form"))
   end
 
-  describe "skip_confirmation_email" do
+  describe "will_send_copy_of_answers" do
     context "when false" do
+      let(:copy_of_answers_enabled) { true }
+
       it "shows the no copy of answers heading" do
         expect(rendered).to have_css("h2", text: I18n.t("form.check_your_answers.no_copy_of_answers"))
       end
@@ -111,8 +114,14 @@ describe "forms/check_your_answers/show.html.erb" do
       end
     end
 
+    context "when false and copy of answers is not enabled on the form" do
+      it "does not show the no copy of answers section" do
+        expect(rendered).not_to have_css("h2", text: I18n.t("form.check_your_answers.no_copy_of_answers"))
+      end
+    end
+
     context "when true" do
-      let(:skip_confirmation_email) { true }
+      let(:will_send_copy_of_answers) { true }
       let(:context) { OpenStruct.new(form:, get_copy_of_answers_email_address: "user@example.gov.uk") }
 
       it "shows the copy of answers email message" do
