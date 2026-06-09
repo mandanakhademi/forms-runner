@@ -64,6 +64,12 @@ class Form
     language == :cy
   end
 
+  def copy_of_answers_enabled?
+    return false unless form_document.respond_to?(:send_copy_of_answers)
+
+    form_document.send_copy_of_answers == "enabled"
+  end
+
   def multilingual?
     available_languages.count > 1
   end

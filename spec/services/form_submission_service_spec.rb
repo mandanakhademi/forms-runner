@@ -80,10 +80,12 @@ RSpec.describe FormSubmissionService, :capture_logging do
   let(:locales_used) { [:en] }
   let(:wants_copy_of_answers) { false }
   let(:copy_of_answers_email_address) { nil }
+  let(:will_send_copy_of_answers) { wants_copy_of_answers && copy_of_answers_email_address.present? }
   let(:current_context) do
     instance_double(Flow::Context, form:, journey:, completed_steps: all_steps, answers:, locales_used:,
                                    wants_copy_of_answers?: wants_copy_of_answers,
-                                   get_copy_of_answers_email_address: copy_of_answers_email_address)
+                                   get_copy_of_answers_email_address: copy_of_answers_email_address,
+                                   will_send_copy_of_answers?: will_send_copy_of_answers)
   end
 
   before do

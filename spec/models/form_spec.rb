@@ -179,6 +179,40 @@ RSpec.describe Form, type: :model do
     end
   end
 
+  describe "#copy_of_answers_enabled?" do
+    context "when send_copy_of_answers is \"enabled\"" do
+      let(:form_document) { build :v2_form_document, send_copy_of_answers: "enabled" }
+
+      it "returns true" do
+        expect(form.copy_of_answers_enabled?).to be true
+      end
+    end
+
+    context "when send_copy_of_answers is \"disabled\"" do
+      let(:form_document) { build :v2_form_document, send_copy_of_answers: "disabled" }
+
+      it "returns false" do
+        expect(form.copy_of_answers_enabled?).to be false
+      end
+    end
+
+    context "when send_copy_of_answers is not present on the form document" do
+      let(:form_document) { build :v2_form_document, send_copy_of_answers: nil }
+
+      it "returns false" do
+        expect(form.copy_of_answers_enabled?).to be false
+      end
+    end
+
+    context "when the form document does not have a send_copy_of_answers field" do
+      let(:form_document) { OpenStruct.new }
+
+      it "returns false" do
+        expect(form.copy_of_answers_enabled?).to be false
+      end
+    end
+  end
+
   describe "#document_json" do
     let(:form_document) { build :v2_form_document, :live, :s3_submissions_enabled }
 

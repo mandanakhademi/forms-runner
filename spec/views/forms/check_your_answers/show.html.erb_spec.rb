@@ -8,6 +8,8 @@ describe "forms/check_your_answers/show.html.erb" do
   let(:declaration_text) { nil }
   let(:declaration_markdown) { nil }
   let(:email_confirmation_input) { build :email_confirmation_input }
+  let(:copy_of_answers_enabled) { false }
+  let(:will_send_copy_of_answers) { false }
   let(:question) { build :text, question_text: "Do you want to remain anonymous?", text: "Yes" }
   let(:steps) { [build(:step, question:, form_document_step: build(:v2_question_step, :with_text_settings))] }
 
@@ -19,7 +21,7 @@ describe "forms/check_your_answers/show.html.erb" do
     assign(:steps, steps)
     assign(:form, form)
     assign(:support_details, support_details)
-    render template: "forms/check_your_answers/show", locals: { email_confirmation_input: }
+    render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, copy_of_answers_enabled:, will_send_copy_of_answers: }
   end
 
   context "when the form does not have a declaration" do
@@ -92,6 +94,48 @@ describe "forms/check_your_answers/show.html.erb" do
 
   it "displays the help link" do
     expect(rendered).to have_text(I18n.t("support_details.get_help_with_this_form"))
+  end
+
+  describe "will_send_copy_of_answers" do
+    context "when false" do
+      let(:copy_of_answers_enabled) { true }
+
+      it "shows the no copy of answers heading" do
+        expect(rendered).to have_css("h2", text: I18n.t("form.check_your_answers.no_copy_of_answers"))
+      end
+
+      it "shows a summary row indicating no copy was requested" do
+        expect(rendered).to have_css(".govuk-summary-list__key", text: I18n.t("form.check_your_answers.copy_of_answers"))
+        expect(rendered).to have_css(".govuk-summary-list__value", text: I18n.t("form.check_your_answers.no"))
+      end
+
+      it "shows a Change link in the summary row" do
+        expect(rendered).to have_link(I18n.t("form.check_your_answers.change"))
+      end
+    end
+
+    context "when false and copy of answers is not enabled on the form" do
+      it "does not show the no copy of answers section" do
+        expect(rendered).not_to have_css("h2", text: I18n.t("form.check_your_answers.no_copy_of_answers"))
+      end
+    end
+
+    context "when true" do
+      let(:will_send_copy_of_answers) { true }
+      let(:context) { OpenStruct.new(form:, get_copy_of_answers_email_address: "user@example.gov.uk") }
+
+      it "shows the copy of answers email message" do
+        expect(rendered).to have_text("user@example.gov.uk")
+      end
+
+      it "does not show the no copy of answers section" do
+        expect(rendered).not_to have_css("h2", text: I18n.t("form.check_your_answers.no_copy_of_answers"))
+      end
+
+      it "does not show the email confirmation radio buttons" do
+        expect(rendered).not_to have_css("input[type='radio'][value='send_email']")
+      end
+    end
   end
 
   describe "email confirmation" do
