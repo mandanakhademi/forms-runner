@@ -508,7 +508,7 @@ en:
         archived: These are test submissions to a preview of an archived form.
         draft: These are test submissions to a preview of a draft form.
         live: These are test submissions to a preview of a live form.
-      submissions_are_split: Submissions are split into separate CSV files if the form's been changed in a way that affects the structure of the CSV.
+      submissions_are_split: Submissions are split into separate CSV files if the form’s been changed in a way that affects the structure of the CSV.
       weekly:
         multiple_files_explainer: 'All submissions to this form from %{begin_date} to %{end_date} are attached to this email in CSV files named:'
         single_file_explainer: 'All submissions to this form from %{begin_date} to %{end_date} are attached to this email in a CSV file named:'
