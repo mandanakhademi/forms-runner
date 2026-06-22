@@ -520,7 +520,7 @@ cy:
       file_answer: Rydych wedi llwytho ffeil o’r enw %{filename}
       not_completed: Heb ei gwblhau
       payment_link_heading: Os ydych dal angen talu
-      payment_link_html: 'Os ydych angen gwneud taliad ac nad ydych wedi gwneud hynny eisoes, defnyddiwch y ddolen dalu hon i dalu nawr: <a href="%{payment_link}">%{payment_link}</a>'
+      payment_link_markdown: 'Os ydych angen gwneud taliad ac nad ydych wedi gwneud hynny eisoes, defnyddiwch y ddolen dalu hon i dalu nawr: [%{payment_link}](%{payment_link})'
       reference_number: Rhif cyfeirnod eich ffurflen yw %{reference}.
       subject: 'Mae eich ffurflen wedi’i chyflwyno’n llwyddiannus – cyfeirnod: %{reference}'
       subject_preview: 'TEST EMAIL CONFIRMING SUBMISSION: Mae eich ffurflen wedi’i chyflwyno’n llwyddiannus – cyfeirnod: %{reference}'

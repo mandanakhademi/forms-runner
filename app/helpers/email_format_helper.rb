@@ -9,9 +9,18 @@ module EmailFormatHelper
     text.gsub("\n", "<br/>")
   end
 
+  def convert_single_newlines_to_markdown_linebreaks(text)
+    text.gsub(/(?<!\n)\n(?!\n)/, "  \n")
+  end
+
   def normalize_whitespace_and_convert_to_html(text)
     output = normalize_whitespace(text)
     convert_newlines_to_html(output)
+  end
+
+  def normalize_and_convert_whitespace_to_markdown(text)
+    output = normalize_whitespace(text)
+    convert_single_newlines_to_markdown_linebreaks(output)
   end
 
   def markdown_to_html(markdown)

@@ -520,7 +520,7 @@ en:
       file_answer: You uploaded a file called %{filename}
       not_completed: Not completed
       payment_link_heading: If you still need to pay
-      payment_link_html: 'If you need to make a payment and have not done so already, use this payment link to pay now: <a href="%{payment_link}">%{payment_link}</a>'
+      payment_link_markdown: 'If you need to make a payment and have not done so already, use this payment link to pay now: [%{payment_link}](%{payment_link})'
       reference_number: Your form reference number is %{reference}.
       subject: 'Your form has been successfully submitted – reference: %{reference}'
       subject_preview: 'TEST EMAIL CONFIRMING SUBMISSION: Your form has been successfully submitted – reference: %{reference}'
