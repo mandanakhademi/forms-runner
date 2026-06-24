@@ -525,7 +525,7 @@ en:
       subject: 'Your form has been successfully submitted – reference: %{reference}'
       subject_preview: 'TEST EMAIL CONFIRMING SUBMISSION: Your form has been successfully submitted – reference: %{reference}'
       submitted_at: "“%{form_name}” was successfully submitted at %{time} on %{date}."
-      this_is_a_test: This is a test email confirming that a form's been submitted.
+      this_is_a_test: This is a test email confirming that a form’s been submitted.
       title: Your form has been successfully submitted
       title_preview: 'TEST EMAIL CONFIRMING SUBMISSION: Your form has been successfully submitted'
       what_happens_next_heading: What happens next
