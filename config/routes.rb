@@ -19,6 +19,8 @@ Rails.application.routes.draw do
   get "/submission" => "submission_status#status", as: :status
   get "/.well-known/security.txt" => redirect("https://vulnerability-reporting.service.security.gov.uk/.well-known/security.txt")
 
+  get "/govuk-one-login-jwks", to: "one_login_jwks#show", as: :one_login_jwks
+
   form_id_constraints = { form_id: UrlPatterns::FORM_ID_REGEX }
   form_constraints = {
     **form_id_constraints,
