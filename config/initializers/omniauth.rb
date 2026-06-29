@@ -7,6 +7,9 @@ if private_key_pem
   private_key_pem = private_key_pem.gsub('\n', "\n")
 
   private_key = OpenSSL::PKey::RSA.new(private_key_pem)
+
+  public_key_jwk = JWT::JWK.new(private_key.public_key, use: "sig")
+  Rails.application.config.x.one_login.public_key_jwk = public_key_jwk
 end
 
 Rails.application.config.middleware.use OmniAuth::Builder do
@@ -16,7 +19,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     idp_base_url: Settings.govuk_one_login.base_url,
     private_key: private_key,
     redirect_uri: "/auth/govuk_one_login/callback",
-    private_key_kid: "", # TODO: we'll need to set this when we switch to using a JWKS endpoint
+    private_key_kid: public_key_jwk&.kid,
     signing_algorithm: "ES256",
     scope: "openid email",
     ui_locales: "en cy",
