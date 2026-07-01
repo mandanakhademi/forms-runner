@@ -12,57 +12,44 @@ class SesEmailFormatter
     @confirmation_email = confirmation_email
   end
 
-  def build_question_answers_section_html(heading_level: 3)
+  def build_question_answers_section_markdown(heading_level: 3)
     @steps.map { |step|
-      [prep_question_title_html(step, heading_level),
-       prep_answer_text_html(step)].join
-    }.join(H_RULE)
-  end
-
-  def build_question_answers_section_plain_text
-    @steps.map { |step|
-      [prep_question_title_plain_text(step),
-       prep_answer_text_plain_text(step)].join("\n\n")
+      [prep_question_title_markdown(step, heading_level),
+       prep_answer_text_markdown(step, heading_level: heading_level + 1)].join("\n\n")
     }.join(H_RULE_PLAIN_TEXT)
   end
 
 private
 
-  def prep_question_title_html(step, heading_level)
+  def prep_question_title_markdown(step, heading_level)
     case heading_level
     when 3
-      "<h3 style=\"font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;\">#{prep_question_title_plain_text(step)}</h3>"
+      "### #{step.question.question_text}"
     when 4
-      "<h4 style=\"font-size: 19px; line-height: 25px; font-weight: bold; color: #0B0C0C;\">#{prep_question_title_plain_text(step)}</h4>"
+      "#### #{step.question.question_text}"
     else
       raise FormattingError, "unsupported heading level: #{heading_level}"
     end
   end
 
-  def prep_answer_text_html(step)
+  def prep_answer_text_markdown(step, heading_level:)
     if step.is_selection_with_none_of_the_above_answer?
-      prep_html_none_of_the_above_answer_text(step)
+      prep_none_of_the_above_answer_text_markdown(step, heading_level:)
     else
-      "<p>#{convert_newlines_to_html(prep_answer_text(step))}</p>"
+      prep_answer_text(step)
     end
   rescue StandardError
     raise FormattingError, "could not format answer for question step #{step.id}"
   end
 
-  def prep_html_none_of_the_above_answer_text(step)
+  def prep_none_of_the_above_answer_text_markdown(step, heading_level:)
+    heading_prefix = heading_level == 5 ? "##### " : "#### "
+
     [
-      "<p>#{convert_newlines_to_html(prep_answer_text(step))}</p>",
-      "<h4>#{convert_newlines_to_html(prep_none_of_the_above_question_text(step))}</h4>",
-      "<p>#{convert_newlines_to_html(prep_none_of_the_above_answer_text(step))}</p>",
-    ]
-  end
-
-  def prep_question_title_plain_text(step)
-    step.question.question_text
-  end
-
-  def prep_none_of_the_above_question_text(step)
-    step.question.none_of_the_above_question_text
+      prep_answer_text(step),
+      "#{heading_prefix}#{step.question.none_of_the_above_question_text}",
+      prep_none_of_the_above_answer_markdown(step),
+    ].join("\n\n")
   end
 
   def prep_answer_text(step)
@@ -75,7 +62,7 @@ private
     raise FormattingError, "could not format answer for question step #{step.id}"
   end
 
-  def prep_none_of_the_above_answer_text(step)
+  def prep_none_of_the_above_answer_markdown(step)
     answer = step.question.none_of_the_above_answer
 
     return skipped_question_text if answer.blank?
@@ -85,25 +72,9 @@ private
     raise FormattingError, "could not format none of the above answer for question step #{step.id}"
   end
 
-  def prep_answer_text_plain_text(step)
-    if step.is_selection_with_none_of_the_above_answer?
-      prep_plain_text_none_of_the_above_answer_text(step)
-    else
-      prep_answer_text(step)
-    end
-  end
-
-  def prep_plain_text_none_of_the_above_answer_text(step)
-    [
-      prep_answer_text(step),
-      prep_none_of_the_above_question_text(step),
-      prep_none_of_the_above_answer_text(step),
-    ].join("\n\n")
-  end
-
   def sanitize(text)
     text
-      .then { normalize_whitespace _1 }
+      .then { normalize_and_convert_whitespace_to_markdown _1 }
   end
 
   def skipped_question_text

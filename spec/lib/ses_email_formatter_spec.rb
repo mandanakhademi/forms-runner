@@ -27,27 +27,19 @@ RSpec.describe SesEmailFormatter do
   let(:none_of_the_above_step) { build :step, question: none_of_the_above_question }
   let(:steps) { [text_step] }
 
-  describe "#build_question_answers_section_html" do
+  describe "#build_question_answers_section_markdown" do
     context "when there is one step" do
-      it "returns question and and answer HTML" do
-        expected = <<~HTML.strip.gsub("\n", "")
-          <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What is the meaning of life?</h3>
-          <p>42</p>
-        HTML
-        expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
+      it "returns question and and answer markdown" do
+        expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What is the meaning of life?\n\n42")
       end
 
-      it "formats with heading level 4" do
-        expected = <<~HTML.strip.gsub("\n", "")
-          <h4 style="font-size: 19px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What is the meaning of life?</h4>
-          <p>42</p>
-        HTML
-        expect(ses_email_formatter.build_question_answers_section_html(heading_level: 4)).to eq(expected)
+      it "formats with the specified heading level" do
+        expect(ses_email_formatter.build_question_answers_section_markdown(heading_level: 4)).to eq("#### What is the meaning of life?\n\n42")
       end
 
       it "raises an error if the heading level is unsupported" do
         expect {
-          ses_email_formatter.build_question_answers_section_html(heading_level: 2)
+          ses_email_formatter.build_question_answers_section_markdown(heading_level: 2)
         }.to raise_error(SesEmailFormatter::FormattingError, "unsupported heading level: 2")
       end
     end
@@ -56,11 +48,7 @@ RSpec.describe SesEmailFormatter do
       let(:steps) { [name_step] }
 
       it "inserts line breaks between answer attributes" do
-        expected = <<~HTML.strip.gsub("\n", "")
-          <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What is your name?</h3>
-          <p>First name: #{name_question.first_name}<br/><br/>Last name: #{name_question.last_name}</p>
-        HTML
-        expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
+        expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What is your name?\n\nFirst name: #{name_question.first_name}\n\nLast name: #{name_question.last_name}")
       end
     end
 
@@ -69,18 +57,14 @@ RSpec.describe SesEmailFormatter do
       let(:steps) { [text_step] }
 
       it "returns the blank answer text" do
-        expected = <<~HTML.strip.gsub("\n", "")
-          <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What is the meaning of life?</h3>
-          <p>[This question was skipped]</p>
-        HTML
-        expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
+        expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What is the meaning of life?\n\n[This question was skipped]")
       end
 
       context "when formatting for a confirmation email" do
         let(:confirmation_email) { true }
 
         it "returns the blank answer text" do
-          expect(ses_email_formatter.build_question_answers_section_html).to include("<p>Not completed</p>")
+          expect(ses_email_formatter.build_question_answers_section_markdown).to include("Not completed")
         end
       end
     end
@@ -89,150 +73,7 @@ RSpec.describe SesEmailFormatter do
       let(:steps) { [text_step, name_step] }
 
       it "returns all question an answers separated by a horizontal rule" do
-        expected = <<~HTML.strip.gsub("\n", "")
-          <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What is the meaning of life?</h3>
-          <p>42</p>
-          <hr style="border: 0; height: 1px; background: #B1B4B6; Margin: 30px 0 30px 0;">
-          <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What is your name?</h3>
-          <p>First name: #{name_question.first_name}<br/><br/>Last name: #{name_question.last_name}</p>
-        HTML
-        expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
-      end
-    end
-
-    context "when there are special characters in the answer" do
-      let(:steps) { [text_step] }
-
-      it "returns the sanitized answer" do
-        [
-          { input: "\n\nTest\n\nTest 2", output: "Test<br/><br/>Test 2" },
-          { input: "    paragraph 1\n\n\n\n\n\n\n\n\n\n\n\n\n Another Paragraph with trailing space     \n\n\n\n\n", output: "paragraph 1<br/><br/>Another Paragraph with trailing space" },
-
-        ].each do |test_case|
-          text_question.text = test_case[:input]
-
-          expected = <<~HTML.strip.gsub("\n", "")
-            <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What is the meaning of life?</h3>
-            <p>#{test_case[:output]}</p>
-          HTML
-          expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
-        end
-      end
-    end
-
-    context "when none of the above is selected in a none of the above question" do
-      let(:steps) { [none_of_the_above_step] }
-
-      it "returns the sanitized answer including the none of the above answer" do
-        expected = <<~HTML.strip.gsub("\n", "")
-          <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What sandwich do you want?</h3>
-          <p>None of the above</p>
-          <h4>Specify your desired sandwich</h4>
-          <p>Cheese and pickle</p>
-        HTML
-        expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
-      end
-
-      context "when the none of the above question has no answer is provided" do
-        let(:none_of_the_above_answer) { nil }
-        let(:none_of_the_above_question_is_optional) { "true" }
-
-        it "returns the skipped none of the above answer text" do
-          expected = <<~HTML.strip.gsub("\n", "")
-            <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">What sandwich do you want?</h3>
-            <p>None of the above</p>
-            <h4>Specify your desired sandwich (optional)</h4>
-            <p>[This question was skipped]</p>
-          HTML
-          expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
-        end
-
-        context "when formatting for a confirmation email" do
-          let(:confirmation_email) { true }
-
-          it "returns the skipped none of the above answer text for a confirmation email" do
-            expect(ses_email_formatter.build_question_answers_section_html).to include("<p>Not completed</p>")
-          end
-        end
-      end
-    end
-
-    context "when there is a file question" do
-      let(:steps) { [file_step] }
-
-      context "when formatting for a submission email" do
-        it "returns the content for a submission email" do
-          expected = <<~HTML.strip.gsub("\n", "")
-            <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">Upload a file</h3>
-            <p>a-file_SUB-12345.txt (attached to this email)</p>
-          HTML
-          expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
-        end
-      end
-
-      context "when formatting for a confirmation email" do
-        let(:confirmation_email) { true }
-
-        it "returns the content for a confirmation email" do
-          expected = <<~HTML.strip.gsub("\n", "")
-            <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;">Upload a file</h3>
-            <p>You uploaded a file called a-file.txt</p>
-          HTML
-          expect(ses_email_formatter.build_question_answers_section_html).to eq(expected)
-        end
-      end
-    end
-
-    context "when there is an error formatting an answer" do
-      before do
-        allow(text_step).to receive(:show_answer_in_email).and_raise(NoMethodError, "undefined method 'strip' for an instance of Array")
-      end
-
-      it "raises an error with the page id" do
-        expect {
-          ses_email_formatter.build_question_answers_section_html
-        }.to raise_error(SesEmailFormatter::FormattingError, "could not format answer for question step #{text_step.id}")
-      end
-    end
-  end
-
-  describe "#build_question_answers_section_plain_text" do
-    context "when there is one step" do
-      it "returns question and and answer HTML" do
-        expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("What is the meaning of life?\n\n42")
-      end
-    end
-
-    context "when the answer has multiple attributes" do
-      let(:steps) { [name_step] }
-
-      it "inserts line breaks between answer attributes" do
-        expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("What is your name?\n\nFirst name: #{name_question.first_name}\n\nLast name: #{name_question.last_name}")
-      end
-    end
-
-    context "when the answer is blank i.e. skipped" do
-      let(:text_question) { build :text, question_text: "What is the meaning of life?", text: nil }
-      let(:steps) { [text_step] }
-
-      it "returns the blank answer text" do
-        expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("What is the meaning of life?\n\n[This question was skipped]")
-      end
-
-      context "when formatting for a confirmation email" do
-        let(:confirmation_email) { true }
-
-        it "returns the blank answer text" do
-          expect(ses_email_formatter.build_question_answers_section_plain_text).to include("Not completed")
-        end
-      end
-    end
-
-    context "when there is more than one step" do
-      let(:steps) { [text_step, name_step] }
-
-      it "returns all question an answers separated by a horizontal rule" do
-        expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("What is the meaning of life?\n\n42\n\n---\n\nWhat is your name?\n\nFirst name: #{name_question.first_name}\n\nLast name: #{name_question.last_name}")
+        expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What is the meaning of life?\n\n42\n\n---\n\n### What is your name?\n\nFirst name: #{name_question.first_name}\n\nLast name: #{name_question.last_name}")
       end
     end
 
@@ -247,8 +88,24 @@ RSpec.describe SesEmailFormatter do
         ].each do |test_case|
           text_question.text = test_case[:input]
 
-          expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("What is the meaning of life?\n\n#{test_case[:output]}")
+          expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What is the meaning of life?\n\n#{test_case[:output]}")
         end
+      end
+    end
+
+    context "when there are newline characters in the answer" do
+      let(:steps) { [text_step] }
+
+      it "converts single newlines into markdown linebreaks" do
+        text_question.text = "Test\nTest 2"
+
+        expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What is the meaning of life?\n\nTest  \nTest 2")
+      end
+
+      it "Converts multiple newlines into double newlines" do
+        text_question.text = "Test\n\n\nTest 2\n\nTest 3"
+
+        expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What is the meaning of life?\n\nTest\n\nTest 2\n\nTest 3")
       end
     end
 
@@ -256,7 +113,13 @@ RSpec.describe SesEmailFormatter do
       let(:steps) { [none_of_the_above_step] }
 
       it "returns the sanitized answer including the none of the above answer" do
-        expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("What sandwich do you want?\n\nNone of the above\n\nSpecify your desired sandwich\n\nCheese and pickle")
+        expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What sandwich do you want?\n\nNone of the above\n\n#### Specify your desired sandwich\n\nCheese and pickle")
+      end
+
+      context "when heading level is set to 4" do
+        it "formats the none of the above question at the correct heading level" do
+          expect(ses_email_formatter.build_question_answers_section_markdown(heading_level: 4)).to eq("#### What sandwich do you want?\n\nNone of the above\n\n##### Specify your desired sandwich\n\nCheese and pickle")
+        end
       end
 
       context "when the none of the above question is optional and no answer is provided" do
@@ -264,14 +127,14 @@ RSpec.describe SesEmailFormatter do
         let(:none_of_the_above_question_is_optional) { "true" }
 
         it "returns the skipped none of the above answer text" do
-          expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("What sandwich do you want?\n\nNone of the above\n\nSpecify your desired sandwich (optional)\n\n[This question was skipped]")
+          expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What sandwich do you want?\n\nNone of the above\n\n#### Specify your desired sandwich (optional)\n\n[This question was skipped]")
         end
 
         context "when formatting for a confirmation email" do
           let(:confirmation_email) { true }
 
           it "returns the skipped none of the above answer text" do
-            expect(ses_email_formatter.build_question_answers_section_plain_text).to include("Not completed")
+            expect(ses_email_formatter.build_question_answers_section_markdown).to include("Not completed")
           end
         end
       end
@@ -282,7 +145,7 @@ RSpec.describe SesEmailFormatter do
 
       context "when formatting for a submission email" do
         it "returns the content for a submission email" do
-          expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("Upload a file\n\na-file_SUB-12345.txt (attached to this email)")
+          expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### Upload a file\n\na-file_SUB-12345.txt (attached to this email)")
         end
       end
 
@@ -290,7 +153,7 @@ RSpec.describe SesEmailFormatter do
         let(:confirmation_email) { true }
 
         it "returns the content for a confirmation email" do
-          expect(ses_email_formatter.build_question_answers_section_plain_text).to eq("Upload a file\n\nYou uploaded a file called a-file.txt")
+          expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### Upload a file\n\nYou uploaded a file called a-file.txt")
         end
       end
     end
@@ -302,7 +165,7 @@ RSpec.describe SesEmailFormatter do
 
       it "raises an error with the page id" do
         expect {
-          ses_email_formatter.build_question_answers_section_plain_text
+          ses_email_formatter.build_question_answers_section_markdown
         }.to raise_error(SesEmailFormatter::FormattingError, "could not format answer for question step #{text_step.id}")
       end
     end

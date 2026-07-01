@@ -65,7 +65,7 @@ private
 
   def answers
     {
-      "a1" => { text: "First answer/nSecond line of first answer" },
+      "a1" => { text: "First answer\nSecond line of first answer" },
       "a2" => { first_name: "Joe", last_name: "Bloggs" },
     }
   end
