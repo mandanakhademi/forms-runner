@@ -1,23 +1,13 @@
 {
   "name": "GOV.UK Forms Runner",
-  "image": "mcr.microsoft.com/devcontainers/ruby:3-bookworm",
-  "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20"
-    },
-    "ghcr.io/devcontainers/features/redis:1": {
-      "version": "7"
-    }
-  },
-  "forwardPorts": [3000, 6379],
+  "dockerComposeFile": ["docker-compose.yaml"],
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [3000],
   "portsAttributes": {
     "3000": {
       "label": "Forms Runner Server",
       "onAutoForward": "notify"
-    },
-    "6379": {
-      "label": "Redis Cache",
-      "onAutoForward": "ignore"
     }
   },
   // Installs Ruby gems, Node modules, and preps the background Redis connections

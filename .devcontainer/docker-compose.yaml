@@ -1,0 +1,38 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        BUNDLE_WITHOUT: ""
+    volumes:
+      - ..:/workspace:cached
+    command: sh -lc 'cd /workspace && bundle exec rails s -b 0.0.0.0 -p 3000'
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/forms_runner_development
+      REDIS_URL: redis://redis:6379/0
+
+  postgres:
+    image: postgres:13-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: forms_runner_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  bundle_cache:
+  postgres_data:
+  redis_data:
