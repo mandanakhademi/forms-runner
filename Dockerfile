@@ -40,12 +40,9 @@ ENV RAILS_ENV="${RAILS_ENV:-production}" \
 
 COPY --chown=ruby:ruby . .
 
-# you can't run rails commands like assets:precompile without a secret key set
-# even though the command doesn't use the value itself
-RUN SECRET_KEY_BASE=dummyvalue rails vite:build_all
-
-# Remove devDependencies once assets have been built
-RUN npm ci --ignore-scripts --omit=dev
+# The following lines are removed as they are not needed for development
+# RUN SECRET_KEY_BASE=dummyvalue rails vite:build_all
+# RUN npm ci --ignore-scripts --omit=dev
 
 CMD ["bash"]
 
@@ -60,7 +57,7 @@ WORKDIR /app
 
 RUN apk update
 RUN apk upgrade --available
-RUN apk add libc6-compat openssl-dev libpq
+RUN apk add libc6-compat openssl-dev libpq nodejs=~${NODEJS_VERSION} npm
 
 RUN adduser -D ruby
 RUN chown ruby:ruby -R /app
