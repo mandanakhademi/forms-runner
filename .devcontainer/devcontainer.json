@@ -12,7 +12,7 @@
   },
   // Installs Ruby gems, Node modules, and preps the background Redis connections
   // All output is redirected to a log file for debugging.
-  "postCreateCommand": "bash -c 'bundle install && npm install && ./bin/setup &> /workspace/post-create.log'",
+  "postCreateCommand": "sh -c '(bundle install && npm install && ./bin/setup) > /workspace/post-create.log 2>&1'",
   "customizations": {
     "vscode": {
       "settings": {
