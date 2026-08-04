@@ -1,24 +1,80 @@
 {
-  "name": "GOV.UK Forms Runner",
-  "dockerComposeFile": ["docker-compose.yaml"],
-  "service": "app",
-  "workspaceFolder": "/workspace",
+  "name": "GOV.UK Forms Runner Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/ruby:3.4",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:2": {
+      "version": "22",
+      "installYarnUsingApt": false
+    },
+    "ghcr.io/devcontainers/features/postgresql:1": {
+      "version": "15",
+      "postgresUser": "postgres",
+      "postgresPassword": "postgres",
+      "postgresDb": "forms_runner_development"
+    },
+    "ghcr.io/devcontainers/features/redis:1": {
+      "version": "7"
+    },
+    "ghcr.io/stu-bell/devcontainer-features/claude-code:0": {},
+    "ghcr.io/devcontainers/features/copilot-cli:1": {},
+    "ghcr.io/devcontainer-community/devcontainer-features/neovim.io:1": {}
+  },
+  "updateContentCommand": "sudo apt-get update && sudo apt-get install -y build-essential libpq-dev git && sudo mkdir -p /usr/local/share/nvim/runtime && sudo git clone --depth 1 --branch v0.12.4 https://github.com/neovim/neovim.git /tmp/neovim-src && sudo cp -r /tmp/neovim-src/runtime/* /usr/local/share/nvim/runtime/ && sudo rm -rf /tmp/neovim-src && echo \"vim.o.background = 'dark'\" >> ~/.config/nvim/init.lua || true",
+  "postCreateCommand": "bundle install && npm install && ./bin/setup",
+  "containerEnv": {
+    "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/forms_runner_development",
+    "REDIS_URL": "redis://localhost:6379/0",
+    "RAILS_ENV": "development"
+  },
   "forwardPorts": [3000],
   "portsAttributes": {
     "3000": {
-      "label": "Forms Runner Server",
-      "onAutoForward": "notify"
+      "label": "GOV.UK Forms Runner Web App",
+      "onAutoForward": "openPreview"
     }
   },
-  // Installs Ruby gems, Node modules, and preps the background Redis connections
-  // All output is redirected to a log file for debugging.
-  "postCreateCommand": "sh -c '(bundle install && npm install && ./bin/setup) > /workspace/post-create.log 2>&1'",
   "customizations": {
     "vscode": {
       "settings": {
+        "editor.formatOnSave": true,
+        "editor.tabSize": 2,
+        "files.eol": "\n",
+        "files.insertFinalNewline": true,
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash"
+          }
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.tabSize": 2
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[scss]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
         "ruby.lint.rubocop": true
       },
       "extensions": [
+        "kaiwood.endwise",
+        "esbenp.prettier-vscode",
+        "redhat.vscode-yaml",
+        "eamodio.gitlens",
+        "GitHub.vscode-pull-request-github",
+        "ms-azuretools.vscode-docker",
+        "vitest.explorer",
+        "banyis.rspec-snippets",
+        "test-explorer.vscode-test-explorer",
+        "editorconfig.editorconfig",
+        "donjayamanne.githistory",
+        "yzhang.markdown-all-in-one",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "anthropic.claude-code",
         "rebornix.Ruby",
         "castwide.solargraph",
         "misogi.ruby-rubocop",
