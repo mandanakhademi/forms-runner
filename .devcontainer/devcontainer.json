@@ -1,7 +1,11 @@
 {
   "name": "GOV.UK Forms Runner Development Environment",
-  "image": "mcr.microsoft.com/devcontainers/ruby:3.4",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
+    "ghcr.io/devcontainers/features/ruby:2": {
+      "version": "3.4.8",
+      "versionManager": "none"
+    },
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/node:2": {
       "version": "22",
