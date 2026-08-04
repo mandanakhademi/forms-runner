@@ -13,9 +13,9 @@
     },
     "ghcr.io/devcontainers/features/copilot-cli:1": {}
   },
-  "updateContentCommand": "sudo apt-get update && sudo apt-get install -y build-essential libpq-dev git postgresql postgresql-contrib redis-server && sudo mkdir -p /usr/local/share/nvim/runtime && sudo git clone --depth 1 --branch v0.12.4 https://github.com/neovim/neovim.git /tmp/neovim-src && sudo cp -r /tmp/neovim-src/runtime/* /usr/local/share/nvim/runtime/ && sudo rm -rf /tmp/neovim-src && mkdir -p ~/.config/nvim && echo \"vim.o.background = 'dark'\" >> ~/.config/nvim/init.lua || true",  
-  "postCreateCommand": "sudo service postgresql start && sudo service redis-server start && sudo psql -h 127.0.0.1 -U postgres -c \"ALTER USER postgres WITH PASSWORD 'postgres';\" && bundle install && npm install && ./bin/setup",
-  "postStartCommand": "sudo service postgresql start && sudo service redis-server start && sudo psql -U postgres -c \"ALTER USER postgres WITH PASSWORD 'postgres';\" && bundle install && npm install && ./bin/setup",
+  "updateContentCommand": "sudo apt-get update && sudo apt-get install -y build-essential libpq-dev git postgresql postgresql-contrib redis-server && sudo mkdir -p /usr/local/share/nvim/runtime && sudo git clone --depth 1 --branch v0.12.4 https://github.com/neovim/neovim.git /tmp/neovim-src && sudo cp -r /tmp/neovim-src/runtime/* /usr/local/share/nvim/runtime/ && sudo rm -rf /tmp/neovim-src && mkdir -p ~/.config/nvim && echo \"vim.o.background = 'dark'\" >> ~/.config/nvim/init.lua || true",
+  "postCreateCommand": "service postgresql start && service redis-server start && psql -U postgres -c \"ALTER USER postgres WITH PASSWORD 'postgres';\" && bundle install && npm install && ./bin/setup",
+  "postStartCommand": "service postgresql start || true && service redis-server start || true",
   "containerEnv": {
     "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/forms_runner_development",
     "REDIS_URL": "redis://localhost:6379/0",
@@ -85,5 +85,5 @@
       ]
     }
   },
-  "remoteUser": "vscode"
+  "remoteUser": "root"
 }
