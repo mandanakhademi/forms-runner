@@ -21,6 +21,7 @@
     "REDIS_URL": "redis://localhost:6379/0",
     "RAILS_ENV": "development",
     "PORT": "3001",
+    "FORMS_API_KEY": "changeme",
     "SETTINGS__FORMS_ADMIN__BASE_URL": "http://forms-admin.forms-admin-6.mandanakhademi.coder:3000",
     "SETTINGS__FORMS_API__BASE_URL": "http://forms-admin.forms-admin-6.mandanakhademi.coder:3000",
     "SETTINGS__FORMS_API__KEY": "changeme"
