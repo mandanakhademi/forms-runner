@@ -21,8 +21,8 @@
     "REDIS_URL": "redis://localhost:6379/0",
     "RAILS_ENV": "development",
     "PORT": "3001",
-    "SETTINGS__FORMS_ADMIN__BASE_URL": "https://3000--forms-admin--forms-admin-6--mandanakhademi--j52k7jndtb3ni.pit-1.try.coder.app",
-    "SETTINGS__FORMS_API__BASE_URL": "https://3000--forms-admin--forms-admin-6--mandanakhademi--j52k7jndtb3ni.pit-1.try.coder.app",
+    "SETTINGS__FORMS_ADMIN__BASE_URL": "http://forms-admin.forms-admin-6.mandanakhademi.coder:3000",
+    "SETTINGS__FORMS_API__BASE_URL": "http://forms-admin.forms-admin-6.mandanakhademi.coder:3000",
     "SETTINGS__FORMS_API__KEY": "changeme"
   },
   "forwardPorts": [3000, 3001, 3038, 3039],
