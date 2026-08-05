@@ -23,7 +23,6 @@
     "PORT": "3001",
     "SETTINGS__FORMS_ADMIN__BASE_URL": "https://3000--forms-admin--forms-admin-2--mandanakhademi--j52k7jndtb3ni.pit-1.try.coder.app/",
     "SETTINGS__FORMS_API__BASE_URL": "https://3000--forms-admin--forms-admin-2--mandanakhademi--j52k7jndtb3ni.pit-1.try.coder.app/",
-    "SETTINGS__FORMS_API__AUTH_KEY": "development_key"
   },
   "forwardPorts": [3000, 3001, 3038, 3039],
   "portsAttributes": {
