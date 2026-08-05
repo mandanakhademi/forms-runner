@@ -4,11 +4,6 @@ class Api::V2::FormDocumentResource < ActiveResource::Base
   self.prefix = "/api/v2/"
   self.include_format_in_path = false
 
-  # Include development API key for server-to-server requests when available
-  if defined?(Settings) && Settings.respond_to?(:forms_api) && Settings.forms_api.respond_to?(:auth_key)
-    headers['X-Forms-Api-Key'] = Settings.forms_api.auth_key if Settings.forms_api.auth_key.present?
-  end
-
   has_many :steps, class_name: "Api::V2::StepResource"
 
   class << self
