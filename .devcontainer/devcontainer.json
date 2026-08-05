@@ -20,7 +20,9 @@
     "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/forms_runner_development",
     "REDIS_URL": "redis://localhost:6379/0",
     "RAILS_ENV": "development",
-    "PORT": "3001"
+    "PORT": "3001",
+    "SETTINGS__FORMS_ADMIN__BASE_URL": "http://host.docker.internal:3000",
+    "SETTINGS__FORMS_API__BASE_URL": "http://host.docker.internal:3000"
   },
   "forwardPorts": [3000, 3001, 3038, 3039],
   "portsAttributes": {
