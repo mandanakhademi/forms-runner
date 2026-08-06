@@ -22,7 +22,7 @@
   // Initialize system services, setup DB permissions, install dependencies, and run initial setup
   "postCreateCommand": "service postgresql start && service redis-server start && bundle install && bin/rails db:prepare && if [ ! -d /workspaces/forms-admin ]; then git clone https://github.com/mandanakhademi/forms-admin.git /workspaces/forms-admin; fi && cd /workspaces/forms-admin && bundle install && bin/rails db:prepare && npm install && bin/vite build",
   // Ensure background services (Postgres & Redis) are running and start Puma on Port 3001
-  "postStartCommand": "service postgresql start || true && service redis-server start || true && mkdir -p log && nohup bash -c 'rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0 -p 3001' > log/server.log 2>&1 &",
+  "postStartCommand": "service postgresql start || true && service redis-server start || true && mkdir -p log && nohup bash -c 'rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0 -p 3001' > log/server.log 2>&1 & if [ -d /workspaces/forms-admin ]; then cd /workspaces/forms-admin && mkdir -p log && nohup bash -c 'rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0 -p 3000' > log/server.log 2>&1 & fi",
   // Environment variables for DB connection, Redis, and internal API routing to forms-admin
   "containerEnv": {
     "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/forms_runner_development",
