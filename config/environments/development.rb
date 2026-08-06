@@ -75,6 +75,9 @@ Rails.application.configure do
   # Configure previews for mailers - https://guides.rubyonrails.org/action_mailer_basics.html#previewing-emails
   config.action_mailer.preview_paths << Rails.root.join("spec/mailers/").to_s
 
+  # Allow Coder domain access for local/remote dev environments
+  config.hosts << /.*\.try\.coder\.app$/
+
   # Set ActiveRecord Encryption keys - this is overriding the default which is to use active_kms gem in application.rb
   config.active_record.encryption.primary_key = Settings.active_record_encryption.primary_key
   config.active_record.encryption.deterministic_key = Settings.active_record_encryption.deterministic_key
