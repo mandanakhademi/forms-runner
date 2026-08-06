@@ -22,7 +22,7 @@
   // Initialize system services, setup DB permissions, install dependencies, and run initial setup
   "postCreateCommand": "service postgresql start && service redis-server start && su - postgres -c \"psql -c \\\"ALTER USER postgres WITH PASSWORD 'postgres';\\\"\" && bundle install && npm install && ./bin/setup",
   // Ensure background services (Postgres & Redis) are running and start Puma on Port 3001
-  "postStartCommand": "service postgresql start || true && service redis-server start || true && nohup bash -c 'rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0 -p 3001' > log/server.log 2>&1 &",
+  "postStartCommand": "service postgresql start || true && service redis-server start || true && mkdir -p log && nohup bash -c 'rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0 -p 3001' > log/server.log 2>&1 &",
   // Environment variables for DB connection, Redis, and internal API routing to forms-admin
   "containerEnv": {
     "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/forms_runner_development",
